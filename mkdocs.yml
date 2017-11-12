@@ -14,7 +14,7 @@ pages:
     - Exodus: Exodus-Install.md
     - VeraCrypt: VeraCrypt-Install.md
     - PasswordSafe: PasswordSafe-Install.md
-    - VisualCode: VisualCode-Install.md
+    - VisualCode: VSCode-Install.md
     - Subversion: Subversion-Install.md
     - Moolah Module: Moolah-Install.md
   - Moolah Module:
