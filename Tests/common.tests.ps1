@@ -57,7 +57,7 @@ Pester\Describe "Manifest" {
     }
 
     Pester\It "has a valid guid" {
-        $ManifestHash.Guid | Should Be "af362048-60a5-47ab-8ad9-a158e89dabb7"
+        $ManifestHash.Guid | Should Be "9d796971-8db8-4989-8630-9f6d08afb949"
     }
 
     Pester\It "has a valid version" {
