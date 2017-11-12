@@ -1,0 +1,20 @@
+<MoolahDB version="1.0">
+  <Wallet Name="Wallet1" Application="Exodus">
+    <KeepOnLine>1</KeepOnLine>
+    <Alert>0</Alert>
+  </Wallet>
+  <Wallet Name="Wallet2" Application="Exodus">
+    <KeepOnLine>1</KeepOnLine>
+    <Alert>0</Alert>
+  </Wallet>
+  <Application Name="Exodus">
+    <Binary>Exodus.exe</Binary>
+    <Process>Exodus</Process>
+    <ARG>--datadir</ARG>
+  </Application>
+  <Application Name="PwManager">
+    <Binary>Pwsafe.exe</Binary>
+    <Process>pwsafe</Process>
+    <ARG>myPWDB.psafe3</ARG>
+  </Application>
+</MoolahDB>

@@ -1,0 +1,26 @@
+site_name: Moolah
+repo_url: https://github.com/cadayton/Moolah
+theme: readthedocs
+pages:
+  - Overview:
+    - Crypto Currency: index.md
+    - Moolah: Moolah.md
+  - What is PowerShell:
+    - PowerShell Overview: PowerShell-Overview.md
+  - Hardware:
+    - Requirements: Hardware.md
+  - Software Installation:
+    - Overview: Install-Overview.md
+    - Exodus: Exodus-Install.md
+    - VeraCrypt: VeraCrypt-Install.md
+    - PasswordSafe: PasswordSafe-Install.md
+    - VisualCode: VisualCode-Install.md
+    - Subversion: Subversion-Install.md
+    - Moolah Module: Moolah-Install.md
+  - Moolah Module:
+    - Integration Setup: Integration-Setup.md
+    - Initialize Moolah: Moolah-Init.md
+    - Moolah cmdlets: Moolah-cmdlets.md
+  - Moolah Support:
+    - Support: Support.md
+    - Donate: Donate.md
