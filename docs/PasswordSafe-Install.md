@@ -8,6 +8,8 @@ Follow the default instructions for installing PasswordSafe and add the installa
 
 Start the PasswordSafe application and get familiar with using the application.
 
+**The installation path must be added to the system path variable or the full path name used in the MoolahDB record which is setup later**.
+
 At a later point in these instructions, steps will be provided on how to move the PasswordSafe database to a **VeraCrypt** encrypted container. And this container will always be mounted as **Drive A**.
 
-I know there are some wiser than me that indicated you shouldn't keep your crypto currency passwords and etc in a password manager application.  They must be aware of methods of where the password manager data has been comprised.  I'm confrontable doing this because the password database is double encrypted once by the application and again by VeraCrypt and I don't have my life savings in crypto currency.  PasswordSafe has been keeping me save for over ten years.
+I know there are some wiser than me that indicated you shouldn't keep your crypto currency passwords and etc in a password manager application.  They must be aware of methods of where the password manager data has been comprised.  I'm confrontable doing this because the password database is double encrypted once by the application and again by VeraCrypt and I don't have my life savings in crypto currency.  PasswordSafe has been keeping me safe for over ten years.

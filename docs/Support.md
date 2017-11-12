@@ -4,7 +4,7 @@ It is always helpful to get constructive feedback about the positive and negativ
 
 If your are a **PowerShell coder**, you can always fork off a version of **Moolah** make enhancements and submit pull requests.
 
-Donation are always a welcome way of showing your graditude.  I gladly accept crypto currency or $USD via **PayPal** see the donatation page if you are wanting to show your graditude this way.
+Donations are always a welcome way of showing your graditude.  I gladly accept crypto currency or $USD via **PayPal** see the donatation page if you are wanting to show your graditude this way.
 
 ***
 ## Code Structure

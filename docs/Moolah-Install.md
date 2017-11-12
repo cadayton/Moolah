@@ -18,7 +18,7 @@ Your PowerShell prompt may be different than **PS>**.  If you would rather just 
 
 There are basically two ways to install the **Moolah** module.  For those not that familiar with PowerShell or Windows, the easiest is to use the **Install-Module** command. The other method is to copy the correct components from GitHub to the appropriate directory on your computer.  We will be using the **Install-Module** method.
 
-    PS> Install-Module Module -Scope currentuser
+    PS> Install-Module -Name Moolah -Scope currentuser
 
 If the PowerShellGet module is not already installed, there will be a prompt requesting permission to install the module. A selection of 'Yes' is the right answer.
 

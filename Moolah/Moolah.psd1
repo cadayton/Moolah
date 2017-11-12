@@ -12,7 +12,7 @@
 RootModule = 'Moolah.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.1.0'
+ModuleVersion = '0.1.4'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -30,7 +30,7 @@ CompanyName = 'Individual Contributor'
 Copyright = '(c) 2017 Craig Dayton. All rights reserved.'
 
 # Description of the functionality provided by this module
-Description = 'Personal Financial Automation with Powershell'
+Description = 'Personal Financial & Investment Automation with Powershell'
 
 # Minimum version of the Windows PowerShell engine required by this module
 # PowerShellVersion = ''
@@ -95,7 +95,7 @@ PrivateData = @{
     PSData = @{
 
         # Tags applied to this module. These help with module discovery in online galleries.
-        # Tags = @()
+        Tags = @('Crypto','Currency','Investments','Money','BitCoin','Wallet')
 
         # A URL to the license for this module.
         LicenseUri = 'https://github.com/cadayton/Moolah/blob/master/LICENSE'

@@ -6,6 +6,8 @@ Verify that the application software is located here:
 
     C:\Users\<username>\AppData\Local\exodus
 
+    This path must be added to the system path variable or the full path name used in the MoolahDB record which is setup later.
+
 Verify that the Exodus wallet data is located here:
 
     C:\Users\<username>\AppData\Roaming\Exodus

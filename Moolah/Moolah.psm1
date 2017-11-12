@@ -32,7 +32,7 @@
     
     if ($rslt -match "Y") {
       "Donor" | Out-File -FilePath $PWD\donor.txt -Append -Encoding ascii;
-      $URL = http://Moolah.readthedocs.io/en/latest/donate
+      $URL = http://moolah.readthedocs.io/en/latest/Donate/
       Start-Process $URL
     } else {
       Write-Host "Thanks. Perhaps I will nag you later so you can show your graditude."
@@ -791,6 +791,7 @@
 
     .NOTES
       Author: Craig Dayton
+        0.1.4: 11/12/2017 - Exit delay changes to 7 seconds.
         0.1.0: 11/01/2017 - initial release.
     
     .LINK
@@ -815,7 +816,7 @@
       )
     #
 
-    $logmsg = "Start-Wallet 0.1.0"
+    $logmsg = "Start-Wallet 0.1.4"
     Write-Log $logmsg $true
     Write-Host " "
 
@@ -996,7 +997,7 @@
 
           Write-Host " "
           Write-Host "PowerShell console will close in 7 seconds." -ForegroundColor Green
-          Start-Sleep -Seconds 120
+          Start-Sleep -Seconds 7
 
 				} else {
           $logmsg = "Error mounting $vol"

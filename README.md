@@ -11,7 +11,7 @@
 
 cmdlet | Description | Version | .Net Full | .Net Core | Date
 -------| ----------- | ------- | --------- | --------- | ----
-**Start-Wallet** | Starts a Crypto Wallet. **Exodus** by default. | 0.1.0 | Yes | No | 11/01/2017
+**Start-Wallet** | Starts a Crypto Wallet. **Exodus** by default. | 0.1.4 | Yes | No | 11/12/2017
 **Start-PwManager** | Starts a Password Manager. **PasswordSafe** by default. | 0.1.0 | Yes | No | 11/01/2017
 **Show-MoolahEnv** | View or Update User environmental variables. | 0.1.0 | Yes | No | 11/01/2017
 
@@ -21,6 +21,7 @@ cmdlet | Description | Version | .Net Full | .Net Core | Date
 
 Date | Version | Description
 ---- | ------- | -----------
+11/12/2017 | 0.1.4 | Start-Wallet delayed exit set to 7 seconds. Document corrections.
 11/10/2017 | 0.1.0 | Initial module release
 
 Future changes will be noted here.

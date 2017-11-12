@@ -23,4 +23,4 @@ TortoiseSVN is **SVN** client plugin for Windows Explorer.
 
 I find it easier to use than the standard **SVN** client command line interface.
 
-If your planning on using **SVN**, then add the installation path to the system path environmental variable.  The **Moolah** cmdlets make use of the TortoiseSVN command line interface.
+If your planning on using **SVN**, then add the **installation path to the system path environmental variable**.  The **Moolah** cmdlets make use of the TortoiseSVN command line interface.
