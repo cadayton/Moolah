@@ -21,6 +21,7 @@ pages:
     - Integration Setup: Integration-Setup.md
     - Initialize Moolah: Moolah-Init.md
     - Moolah cmdlets: Moolah-cmdlets.md
+    - Start-GnuCash: Start-GnuCash.md
   - Moolah Support:
     - Support: Support.md
     - Donate: Donate.md

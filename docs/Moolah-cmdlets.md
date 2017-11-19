@@ -1,10 +1,11 @@
 # Moolah Cmdlets
 
-The **Moolah** module currently consists of three different cmdlets:
+The **Moolah** module currently consists of these cmdlets:
 
 cmdlet | Version | Description
 ------ | ------- | -----------
-Start-Wallet | 0.1.0 | Starts the Exodus wallet application using the current configuration and start the Password Manager application.
+Start-GnuCash | 0.1.5 | Starts the **GnuCash** Financial Accounting application
+Start-Wallet | 0.1.5 | Starts the **Exodus** wallet application using the current configuration and start the Password Manager application.
 Start-PwManager | 0.1.0 | Starts the Password Manager application
 Show-MoolahEnv | 0.1.0 | Show the current Moolah User environmental variables and optionally start VScode to manage the **MoolahDB**
 

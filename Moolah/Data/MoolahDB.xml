@@ -7,6 +7,11 @@
     <KeepOnLine>1</KeepOnLine>
     <Alert>0</Alert>
   </Wallet>
+  <GnuCash Name="ExampleOnly" Application="GnuCash">
+    <FileName>gnu-business.gnucash</FileName>
+    <KeepOnLine>1</KeepOnLine>
+    <Alert>0</Alert>
+  </GnuCash>
   <Application Name="Exodus">
     <Binary>Exodus.exe</Binary>
     <Process>Exodus</Process>
@@ -16,5 +21,10 @@
     <Binary>Pwsafe.exe</Binary>
     <Process>pwsafe</Process>
     <ARG>myPWDB.psafe3</ARG>
+  </Application>
+  <Application Name="GnuCash">
+    <Binary>D:\bin\gnucash\bin\gnucash.exe</Binary>
+    <Process>gnucash</Process>
+    <ARG></ARG>
   </Application>
 </MoolahDB>

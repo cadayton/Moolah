@@ -20,4 +20,6 @@ individually, you may wish to donate directly to them too.
 **[PasswordSafe](https://pwsafe.org/)**
 
 **[TortoiseSVN](https://tortoisesvn.net/donate.html)**
+
+**[GnuCash](http://gnucash.org/donate.phtml)**
 ***

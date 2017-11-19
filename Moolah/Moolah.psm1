@@ -418,18 +418,25 @@
   }
 
   function Get-Wallets {
+    param([string]$rtype)
+
     begin {
       $Script:WalArrays = @();
-      $logmsg = "Creating Wallet Object"
+      $logmsg = "Creating $rtype Object"
       Write-Log $logmsg $false " "
     }
+
     process {
       $WalletObj = New-Object -typename PSObject
-      $WalletObj | Add-Member -MemberType NoteProperty -Name "Wallet" -Value $_.Name
+      $WalletObj | Add-Member -MemberType NoteProperty -Name $rtype -Value $_.Name
       $WalletObj | Add-Member -MemberType NoteProperty -Name "Application" -Value $_.Application
+      if ($rtype -eq "GnuCash") {
+        $WalletObj | Add-Member -MemberType NoteProperty -Name "FileName" -Value $_.FileName
+      }
       $WalletObj | Add-Member -MemberType NoteProperty -Name "KeepOnLine" -Value $_.KeepOnLine
       $Script:WalArrays += $WalletObj
     }
+
     # return an array of storage arrays
     end { $Script:WalArrays }
   }
@@ -707,7 +714,7 @@
       The SVN copy is optional.
 
     .PARAMETER Wallet
-      The name of the wallet to be mount on drive letter 'B'.
+      The name of the wallet container to be mount on drive letter 'B'.
 
     .INPUTS
       User Enviornment variables for Moolah are:
@@ -791,6 +798,7 @@
 
     .NOTES
       Author: Craig Dayton
+        0.1.5: 11/19/2017 - Logical chg to support Start-GnuCash
         0.1.4: 11/12/2017 - Exit delay changes to 7 seconds.
         0.1.0: 11/01/2017 - initial release.
     
@@ -809,14 +817,22 @@
       Param(
         [Parameter(Position=0,
           Mandatory=$false,
-          HelpMessage = "Enter a Wallet name (i.e. Exodus)",
+          HelpMessage = "Enter a Wallet name",
           ValueFromPipeline=$True)]
           #[ValidateNotNullorEmpty("^[a-zA-Z0-1]{12}$")]
-          [string]$Wallet = $null
+          [string]$Wallet = $null,
+        [Parameter(Position=1,
+          Mandatory=$false,
+          HelpMessage = "Enter a record type value",
+          ValueFromPipeline=$True)]
+          #[ValidateNotNullorEmpty("^[a-zA-Z0-1]{12}$")]
+          [string]$RecType = "Wallet"
       )
     #
 
-    $logmsg = "Start-Wallet 0.1.4"
+    $nodeType = "//" + $RecType;
+
+    $logmsg = "Start-$RecType 0.1.5"
     Write-Log $logmsg $true
     Write-Host " "
 
@@ -835,35 +851,45 @@
       $Script:aPath    = $env:Moolah_DL + ":\"
     }
 
-    # Select a Wallet if not specified
+    # Select a RecType if not specified
       if ([string]::IsNullOrEmpty($Wallet)) {
-        $title = "Select a Wallet to open";
-        $WalletSel = $Script:MoolahDB.SelectNodes("//Wallet") | Get-Wallets |
+        $title = "Select a $RecType container to open";
+        $WalletSel = $Script:MoolahDB.SelectNodes($nodeType) | Get-Wallets $RecType |
           Out-GridView -Title $title -OutputMode Single
 
         if ($WalletSel -ne $null) {
-          $Wallet = $WalletSel.Wallet;
+          switch ($RecType) {
+            "Wallet"    { $Wallet = $WalletSel.Wallet }
+            "GnuCash"   { $Wallet = $WalletSel.GnuCash }
+            Default {
+              Write-Host "A $RecType is NOT valid. Must be 'Wallet' or 'GnuCash'." -ForegroundColor Red
+              Read-Host "Enter any key to exit"
+              exit
+            }
+          }
         } else {
-          Write-Host "A Wallet must be selected or specified for the Wallet application." -ForegroundColor Red
+          Write-Host "A $RecType must be selected or specified for the $RecType application." -ForegroundColor Red
           Read-Host "Enter any key to exit"
           exit
         }
       }
     #
-
+    
+    # $Wallet is the container name to open
     $vol = $env:Moolah_Online + "\" + $Wallet;   # Local Path
     $ovol = $env:Moolah_Offline + "\" + $Wallet; # Offline Path
     $dltr = $env:Moolah_WL                       # Wallet drive letter
 
-    # Load Wallet and Application details
-      $myWallet = $Script:MoolahDB.SelectNodes("//Wallet") | Where-Object {$_.Name -eq $Wallet}
+    # Load container and Application details
+      $myWallet = $Script:MoolahDB.SelectNodes($nodeType) | Where-Object {$_.Name -eq $Wallet}
       if (!($myWallet -is [object])) {
-        $logmsg = "Wallet $myWallet record not found in the MoolahDB"
+        $logmsg = "$RecType $myWallet record not found in the MoolahDB"
         Write-Log $logmsg $true "Red"
         Read-Host "Enter any key to exit"
         exit
       } else {
         $myAppName = $myWallet.Application
+        if ($RecType -eq "GnuCash") { $myGnuFname = $myWallet.FileName }
         $myWallet_Onl = $myWallet.KeepOnline
         $myWallet_Alt = $myWallet.Alert
 
@@ -890,7 +916,7 @@
 			Read-Host "Press any key to exit";
 		} else {
 			if (!(Test-Path $vol)) {
-        $logmsg = "Wallet $vol not found"
+        $logmsg = "$RecType $vol not found"
         Write-Log $logmsg $true "Red"
 				$rslt = Read-Host "What to restore from offline copy? (Y or N) or CTRL-C to exit"
 				if ($rslt -match "Y") {
@@ -901,7 +927,7 @@
 			}
 
 			if (!(Test-Path $vol)) {
-        $logmsg = "Wallet $vol not found"
+        $logmsg = "$RecType $vol not found"
         Write-Log $logmsg $true "Red"
 			} else {
 				if (Mount-VeVolume $vol $dltr) {
@@ -919,13 +945,22 @@
             UpDate-SVNServer $mPath "update"
           }
 
-          $logmsg = "Starting $appBinary with Wallet"
+          Switch ($RecType) {
+            "Wallet"   { 
+              $logmsg = "Starting $appBinary with Wallet"
+              $ARG = $appARG + " " + $mPath;
+           }
+            "GnuCash"  { 
+              $logmsg = "Starting $appBinary with $myGnuFname"
+              $ARG = $mPath + "GnuCash\" + $myGnuFname
+            }
+          }
+
           Write-Log $logmsg $true "Green"
           $logmsg = " $vol"
           Write-Log $logmsg $true
           Write-Host " "
 					$URL = $appBinary
-					$ARG = $appARG + " " + $mPath;
 					Start-Process -FilePath $URL -ArgumentList $ARG
 					Start-Sleep -Seconds 4
 
@@ -1005,6 +1040,117 @@
 				}
 			}
 		}
+  }
+
+  <#
+    .SYNOPSIS
+      Starts GnuCash with a specific *.gnucash database.
+      
+    .DESCRIPTION
+      Starts GnuCash after mounting a VeraCrypt container host the *.gnucash database
+      
+      A GridView dialog is presented for the seletion of a specific GnuCash container if a 
+      specific container name is not provided.
+
+    .PARAMETER Container
+      The name of the GnuCash container to be mount on drive letter 'B'.
+
+    .INPUTS
+      User Enviornment variables for Moolah are:
+
+        Name           Value          Description
+        ----           -----          -----------        
+        Moolah_DL      A              Driveletter for mounting the Moolah VeraCrypt container
+        Moolah_Offline D:\bin\app     Offline location of VeraCrypt containers
+        Moolah_Online  C:\bin\app     Online location of VeraCrypt containers
+        Moolah_VC      Moolah         Name of the Moolah VeraCrypt container
+        Moolah_WL      B              Driveletter for mounting the Wallet VeraCrypt container
+
+    .INPUTS
+      File: Moolah (default name)
+
+      The Moolah file is a VeraCrypt container with an Online location of C:\bin\app and a
+      offline location of D:\bin\app. Confidential data files such as Moolah database, Password Manager
+      database and other confidential files reside in this container. 
+      
+      The Moolah container file is mounted as drive letter 'A'.
+      
+    .INPUTS
+      File: A:\MoolahDB-<COMPUTERNAME>.xml
+
+      This is an XML database containing GnuCash and application records.
+      The DB structure is as follows:
+      
+        <MoolahDB version="1.0">
+          <GnuCash Name="ExampleOnly" Application="GnuCash">
+            <FileName>gnu-business.gnucash</FileName>
+            <KeepOnLine>1</KeepOnLine>
+            <Alert>0</Alert>
+          </GnuCash>
+          <Application Name="GnuCash">
+            <Binary>D:\bin\gnucash\bin\gnucash.exe</Binary>
+            <Process>gnucash<Process>
+            <ARG></ARG>
+          </Application>
+        </MoolahDB>
+
+    .INPUTS
+      File: B:\<GnuCash container name>
+      
+      A VeraCrypt container containing the GnuCash *.gnucash database.
+
+    .OUTPUTS
+      A offline backup of the GnuCash container to a USB or MicroSD drive and 
+      optionally performs a SVN commit operation on mount folder.
+
+    .EXAMPLE
+      Start-GnuCash Finanical
+
+      Mounts the Moolah VeraCrypt container as drive letter 'A' and the
+      named GnuCash container 'Finanical' as drive letter 'B'.
+
+      The container files are stored in the default online path of C:\bin\app
+      and the offline path of D:\bin\app.
+
+      The Password Manager and GnuCash application are then launched.
+
+      When the GnuCash application is terminated, the contents of the online GnuCash
+      container is copied to the offline path and optionally the online
+      container is removed.
+
+    .EXAMPLE
+      Start-GnuCash
+
+      Processes the same as the previous example, but a table of existing
+      GnuCash containers are displayed for selection of the desired container.
+
+    .NOTES
+      Author: Craig Dayton
+        0.1.5: 11/15/2017 - Initial release.
+
+    .LINK
+      https://github.com/cadayton/Moolah
+
+    .LINK
+      http://Moolah.readthedocs.io
+  #>
+
+  function Start-GnuCash {
+    
+    # Start-GnuCash Params
+        [cmdletbinding()]
+        Param(
+          [Parameter(Position=0,
+            Mandatory=$false,
+            HelpMessage = "Enter a GnuCash container name",
+            ValueFromPipeline=$True)]
+            #[ValidateNotNullorEmpty("^[a-zA-Z0-1]{12}$")]
+            [string]$container = $null
+        )
+    #
+
+    Start-Wallet $container "GnuCash"
+
   }
 
 #

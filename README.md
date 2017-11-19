@@ -21,10 +21,11 @@ cmdlet | Description | Version | .Net Full | .Net Core | Date
 
 Date | Version | Description
 ---- | ------- | -----------
+11/14/2017 | 0.1.5 | Added Start-GnuCash cmdlet
 11/12/2017 | 0.1.4 | Start-Wallet delayed exit set to 7 seconds. Document corrections.
 11/10/2017 | 0.1.0 | Initial module release
 
-Future changes will be noted here.
+0.1.5 Added support for launching **GnuCash** via the **Start-GnuCash** cmdlet.
 ***
 
 This module contains a collection of PowerShell cmdlets that help automate some of the finanical and investment processes that are performed on your personal computer.  All of the hard work is performed in the PowerShell cmdlets, so all you have to do is follow instructions on the initial configuration and setup to get the benefits of the PowerShell cmdlets.
