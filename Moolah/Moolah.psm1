@@ -342,15 +342,15 @@
       if ($WalletNM -match "Init") {
 
         $scut = $env:USERPROFILE + "\Desktop\Moolah.lnk"
-        if (!(TestPath $scut)) {
+        if (!(Test-Path $scut)) {
           Set-MoolahShortCut "\Desktop\Moolah.lnk" '-Command "& { Start-Wallet }" -NoExit' "Moolah Wallets" "Moolah.ico";
         }
         $scut = $env:USERPROFILE + "\Desktop\GnuCashMoolah.lnk"
-        if (!(TestPath $scut)) {
+        if (!(Test-Path $scut)) {
           Set-MoolahShortCut "\Desktop\GnuCashMoolah.lnk" '-Command "& { Start-GnuCash }" -NoExit' "GnuCash-Moolah" "GnuCash-Moolah.ico";
         }
         $scut = $env:USERPROFILE + "\Desktop\MoolahTicker.lnk"
-        if (!(TestPath $scut)) {
+        if (!(Test-Path $scut)) {
           Set-MoolahShortCut "\Desktop\MoolahTicker.lnk" '-Command "& { Get-CryptoTicker }" -NoExit' "Moolah-Ticker" "Moolah-Ticker.ico";
         }
         
@@ -1424,9 +1424,9 @@
       )
     #
 
-    $logmsg = "Get-CryptoTicker version 0.1.6"
-    Write-Log $logmsg $true
-    Write-Host " "
+    # $logmsg = "Get-CryptoTicker version 0.1.6"
+    # Write-Log $logmsg $true
+    # Write-Host " "
 
     Start-PwManager $false
     Start-Sleep -Seconds 5
