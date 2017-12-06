@@ -14,6 +14,8 @@ cmdlet | Description | Version | .Net Full | .Net Core | Date
 **Start-Wallet** | Starts a Crypto Wallet. **Exodus** by default. | 0.1.4 | Yes | No | 11/12/2017
 **Start-PwManager** | Starts a Password Manager. **PasswordSafe** by default. | 0.1.0 | Yes | No | 11/01/2017
 **Show-MoolahEnv** | View or Update User environmental variables. | 0.1.0 | Yes | No | 11/01/2017
+**Start-GnuCash** | Start GnuCash application. | 0.1.5 | Yes | No | 11/14/2017
+**Get-CryptoTicker** | Display asset values for specific assets. | 0.1.6 | Yes | No | 12/15/2017
 
 ***
 
@@ -21,11 +23,11 @@ cmdlet | Description | Version | .Net Full | .Net Core | Date
 
 Date | Version | Description
 ---- | ------- | -----------
+12/15/2017 | 0.1.6 | Added Get-CryptoTicker & Document corrections
 11/14/2017 | 0.1.5 | Added Start-GnuCash cmdlet
 11/12/2017 | 0.1.4 | Start-Wallet delayed exit set to 7 seconds. Document corrections.
 11/10/2017 | 0.1.0 | Initial module release
 
-0.1.5 Added support for launching **GnuCash** via the **Start-GnuCash** cmdlet.
 ***
 
 This module contains a collection of PowerShell cmdlets that help automate some of the finanical and investment processes that are performed on your personal computer.  All of the hard work is performed in the PowerShell cmdlets, so all you have to do is follow instructions on the initial configuration and setup to get the benefits of the PowerShell cmdlets.

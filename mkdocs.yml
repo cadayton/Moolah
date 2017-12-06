@@ -22,6 +22,7 @@ pages:
     - Initialize Moolah: Moolah-Init.md
     - Moolah cmdlets: Moolah-cmdlets.md
     - Start-GnuCash: Start-GnuCash.md
+    - Get-CryptoTicker: Get-CryptoTicker.md
   - Moolah Support:
     - Support: Support.md
     - Donate: Donate.md

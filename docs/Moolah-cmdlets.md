@@ -4,6 +4,7 @@ The **Moolah** module currently consists of these cmdlets:
 
 cmdlet | Version | Description
 ------ | ------- | -----------
+Get-CryptoTicker | 0.1.6 | Starts the Ticker application display asset ROI.
 Start-GnuCash | 0.1.5 | Starts the **GnuCash** Financial Accounting application
 Start-Wallet | 0.1.5 | Starts the **Exodus** wallet application using the current configuration and start the Password Manager application.
 Start-PwManager | 0.1.0 | Starts the Password Manager application
