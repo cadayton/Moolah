@@ -23,6 +23,7 @@ cmdlet | Description | Version | .Net Full | .Net Core | Date
 
 Date | Version | Description
 ---- | ------- | -----------
+12/15/2017 | 0.1.7 | ShortCut creation bug fix
 12/15/2017 | 0.1.6 | Added Get-CryptoTicker & Document corrections
 11/14/2017 | 0.1.5 | Added Start-GnuCash cmdlet
 11/12/2017 | 0.1.4 | Start-Wallet delayed exit set to 7 seconds. Document corrections.
