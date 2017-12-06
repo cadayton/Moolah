@@ -1,7 +1,9 @@
 # Module Constants
 
   Set-Variable -Name MoolahXML -Value "MoolahDB-$env:COMPUTERNAME.xml" -Option Constant -Scope Script -Visibility Private -Description "XMLDB file";
-  Set-Variable -Name MoolahLOG -Value "$PWD\Moolah.log" -Option Constant -Scope Script -Visibility Private -Description "Log file";
+  Set-Variable -Name MoolahAST -Value "AssetDB-$env:COMPUTERNAME.xml" -Option Constant -Scope Script -Visibility Private -Description "XMLDB file";
+  Set-Variable -Name MoolahLOG -Value "$env:LOCALAPPDATA\Moolah.log" -Option Constant -Scope Script -Visibility Private -Description "Log file";
+  Set-Variable -Name MoolahHIS -Value "$env:LOCALAPPDATA\TickerHistory.csv" -Option Constant -Scope Script -Visibility Private -Description "Ticker History";
   $Script:MoolahDB = $null
 
 #
@@ -26,13 +28,13 @@
     Write-Host " "
     
     Write-Host "Would like to make a donation to show your graditude "  -ForegroundColor Yellow -NoNewLine
-    Write-Host "[Y or N]?"
-    $rslt = Read-Host | Out-Null
+    Write-Host "[Y or N]?" -NoNewLine
+    $rslt = Read-Host;
     Write-Host " "
     
-    if ($rslt -match "Y") {
+    if ($rslt -notmatch "N") {
       "Donor" | Out-File -FilePath $PWD\donor.txt -Append -Encoding ascii;
-      $URL = http://moolah.readthedocs.io/en/latest/Donate/
+      $URL = "http://moolah.readthedocs.io/en/latest/Donate/"
       Start-Process $URL
     } else {
       Write-Host "Thanks. Perhaps I will nag you later so you can show your graditude."
@@ -147,10 +149,12 @@
   }
 
   function Set-MoolahShortCut {
+    param([string]$ShortCutFile, [string]$cmd, [string]$ShortCutName, [string]$icon)
 
-    $moolah_shortcut = $env:USERPROFILE + "\Desktop\Moolah.lnk"
-    $arg = '-Command "& { Start-Wallet }" -NoExit'
-    $sdesc = "Moolah Wallets"
+    $moolah_shortcut = $env:USERPROFILE + $ShortCutFile
+    $arg = $cmd
+    $sdesc = $ShortCutName
+    $iconLoc = "$PSScriptRoot\Data\" + $icon
   
     if (!(Test-Path $moolah_shortcut)) {
       $Shell = New-Object -ComObject ("WScript.Shell")
@@ -158,7 +162,7 @@
       $ShortCut.TargetPath="C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe"
       $ShortCut.Arguments=$arg
       $ShortCut.WorkingDirectory = $env:LOCALAPPDATA;
-      $ShortCut.IconLocation= "$PSScriptRoot\Data\Moolah.ico"
+      $ShortCut.IconLocation= $iconLoc;
       $ShortCut.Description = $sdesc;
       $ShortCut.Save()
     }
@@ -336,7 +340,20 @@
     if (($env:Moolah_VC -eq $null) -or ($WalletNM -match "Init")) {
       Set-MoolahEnvironment;
       if ($WalletNM -match "Init") {
-        Set-MoolahShortCut;
+
+        $scut = $env:USERPROFILE + "\Desktop\Moolah.lnk"
+        if (!(TestPath $scut)) {
+          Set-MoolahShortCut "\Desktop\Moolah.lnk" '-Command "& { Start-Wallet }" -NoExit' "Moolah Wallets" "Moolah.ico";
+        }
+        $scut = $env:USERPROFILE + "\Desktop\GnuCashMoolah.lnk"
+        if (!(TestPath $scut)) {
+          Set-MoolahShortCut "\Desktop\GnuCashMoolah.lnk" '-Command "& { Start-GnuCash }" -NoExit' "GnuCash-Moolah" "GnuCash-Moolah.ico";
+        }
+        $scut = $env:USERPROFILE + "\Desktop\MoolahTicker.lnk"
+        if (!(TestPath $scut)) {
+          Set-MoolahShortCut "\Desktop\MoolahTicker.lnk" '-Command "& { Get-CryptoTicker }" -NoExit' "Moolah-Ticker" "Moolah-Ticker.ico";
+        }
+        
         Write-Host "Moolah environmental variables have been updated." -ForegroundColor Magenta
         Write-Host "  To verify these variables exist a new PowerShell console session needs to started";
         Write-Host "  to display the current Moolah environment variables and create the Moolah Database."
@@ -400,7 +417,9 @@
         Start-Code $mDB
       } else {
         $src = "$PSScriptRoot\Data\MoolahDB.xml"
+        $src1 = "$PSScriptRoot\Data\AssetDB.xml"
         Copy-Item -Path $src -Destination Moo:$Script:MoolahXML
+        Copy-Item -Path $src1 -Destination Moo:$Script:MoolahAST
         Start-Sleep -Seconds 5
         if (Test-Path Moo:$Script:MoolahXML) {
           Write-Host "Awesome $Script:MoolahXML is now present" -ForegroundColor Green
@@ -439,6 +458,151 @@
 
     # return an array of storage arrays
     end { $Script:WalArrays }
+  }
+
+  function Convert-FromUnixdate {
+    param ($UnixEpoch)
+       [timezone]::CurrentTimeZone.ToLocalTime(([datetime]'1/1/1970').AddSeconds($UnixEpoch))
+  }
+
+  function Convert-FromUnixDate {
+    param ($UnixEpoch)
+       [timezone]::CurrentTimeZone.ToLocalTime(([datetime]'1/1/1970').AddSeconds($UnixEpoch))
+  }
+
+  function Get-AssetValue {
+
+    begin {
+      $Script:AssetArrays = @();
+      [decimal]$Script:TotalFees = 0;
+      [decimal]$Script:TotalCost = 0;
+      [decimal]$Script:TotalGL = 0;
+    }
+
+    process {
+      $AssetObj = New-Object -typename PSObject
+      $CryptoName = $_.Name;
+      $URI = "https://api.coinmarketcap.com/v1/ticker/" + "$CryptoName";
+      
+      try {
+        $tresp = Invoke-WebRequest -URI $URI -UserAgent "https://github.com/cadayton/Moolah";
+      }
+      Catch {
+        Write-Host "Error in processing $URI" -ForegroundColor Red
+        Write-Host "Verify that $CryptoName is a valid currency 'ID' " -ForegroundColor Yellow
+        Read-Host "Press any key to continue"
+      }
+
+      if ($tresp.StatusCode -match "200") {
+        $JsonObj = ConvertFrom-Json $tresp
+
+        [decimal]$assetAmt = $_.Amt
+        if ($assetAmt -ge 0) {
+
+          $AssetObj | Add-Member -MemberType NoteProperty -Name ID -Value $JsonObj.id
+          $AssetObj | Add-Member -MemberType NoteProperty -Name SYMBOL -Value $JsonObj.symbol
+          #$AssetObj | Add-Member -MemberType NoteProperty -Name RANK -Value $JsonObj.rank
+
+          [int]$ts = $JsonObj.last_updated
+          $dateTS = Convert-FromUnixDate $ts
+          $curDate = Get-Date -Date $dateTS -Format "MM/dd/yyyy HH:mm"
+          $AssetObj | Add-Member -MemberType NoteProperty -Name DATE -Value $curDate
+
+          [decimal]$curPrice = $JsonObj.price_usd
+          [string]$cPrice = [Math]::Round($curPrice,2);
+          $AssetObj | Add-Member -MemberType NoteProperty -Name PRICE -Value $cPrice
+
+          $hour = $JsonObj.percent_change_1h
+          $day = $JsonObj.percent_change_24h
+          $week = $JsonObj.percent_change_7d
+          $ChgRate = $hour + "/" + $day + "/" + $week
+          $AssetObj | Add-Member -MemberType NoteProperty -Name 'CHG%/1h/24h/7d' -Value $ChgRate
+
+          [string]$aAmt = [Math]::Round($assetAmt,8)
+          $AssetObj | Add-Member -MemberType NoteProperty -Name AMT -Value $aAmt
+
+          [decimal]$curValue = $curPrice * $assetAmt;
+          [decimal]$Script:TotalGL += $curValue
+          [string]$crv = [Math]::Round($curValue,2);
+          $AssetObj | Add-Member -MemberType NoteProperty -Name VALUE -Value $crv
+
+          [decimal]$assetCost = $_.AssetCost
+          [decimal]$roi = (($curPrice - $AssetCost) / [Math]::Max($AssetCost,1)) * 100;
+          [string]$sroi = [Math]::Round($roi,2);
+          if ($assetCost -le 0) { $sroi = "0"};
+          $AssetObj | Add-Member -MemberType NoteProperty -Name ROI -Value $sroi
+
+          $Script:TotalFees += $_.Fee
+          $Script:TotalCost += $_.Total
+
+          $AssetObj | Add-Member -MemberType NoteProperty -Name Wallet -Value $_.Wallet
+          $Script:AssetArrays += $AssetObj
+        }
+      }
+    }
+
+    # return an array of storage arrays
+    end { $Script:AssetArrays }
+  }
+
+  function Get-AssetDB {
+    param ([string]$dbPath )
+    
+    $FileIn = $dbPath + "AssetDB.xml"
+
+    New-PSDrive -Name A1 -PSProvider FileSystem -Root $dbPath | Out-Null
+    # Regular drive mount detection only working with PSDrive in
+    # this code block for some reason.
+
+    #  if (Test-Path $FileIn) { # input file exist?
+    if(Test-Path A1:AssetDB.xml) {
+      $AssetDB = new-object "System.Xml.XmlDocument"
+      $AssetDB.Load($FileIn)
+      return $AssetDB;
+    } else {
+      Write-Host "AssetDB: $FileIn notfound" -ForegroundColor Red
+      Read-Host "Press any key to exit"
+      exit
+    }
+
+  }
+
+  function Show-CryptoTicker {
+    param ([string]$WalletName)
+
+    $assDB = Get-AssetDB $Script:aPath;
+    
+    if ([string]::IsNullOrEmpty($WalletName)) {
+      $Asset = $assDB.SelectNodes("//Trans") | Where-Object {$_.TRTYPE -eq "Buy" -or $_.TRTYPE -eq "Exchange" }
+    } else {
+      $Asset = $assDB.SelectNodes("//Trans") | 
+        Where-Object {$_.Wallet -eq $WalletName -and ($_.TRTYPE -eq "Buy" -or $_.TRTYPE -eq "Exchange") }
+    }
+
+    if ($Asset -isnot [object]) {
+      Write-Host "Error no assests found in the file, AssetDB.xml" -ForegroundColor Red
+      Write-Host "Verify your spelling and that the AssetDB's records are correctly configured." -ForegroundColor Yellow
+      Read-Host "Press any key to exit";
+      exit
+    }
+
+    $TickerInfo = $Asset | Get-AssetValue
+  
+    $TickerInfo | Format-Table -AutoSize
+  
+    $InvestCost = [Math]::Round(($Script:TotalFee + $Script:TotalCost),2);
+    $InvestROI = (($Script:TotalGL - $InvestCost) / $InvestCost) * 100;
+    $InvROI = [Math]::Round($InvestROI,2)
+    $InvGL = [Math]::Round($Script:TotalGL,2)
+  
+    if ($InvestCost -lt $Script:TotalGL) { # ROI Gain
+      Write-Host "       Investment Cost: $InvestCost           Investment Value: $InvGL             ROI: $InvROI"  -ForegroundColor Green
+    } else { # ROI Loss
+      Write-Host "       Investment Cost: $InvestCost           Investment Value: $InvGL             ROI: $InvROI"  -ForegroundColor Red
+    }
+
+    $TickerInfo | Export-CSV -Path $MoolahHIS -Delimiter "," -Append -NoTypeInformation
+
   }
 
 #
@@ -552,13 +716,15 @@
   #>
 
   function Start-PwManager {
-    [cmdletbinding()] param()
+    [cmdletbinding()] param([bool]$StartPWM = $true)
 
-    $logmsg = "Start-PwManager 0.1.0"
-    Write-Log $logmsg $true
-    Write-Host " "
+    if ($StartPWM) {
+      $logmsg = "Start-PwManager 0.1.0"
+      Write-Log $logmsg $true
+      Write-Host " "
 
-    Get-MoolahEnvironment;
+      Get-MoolahEnvironment;
+    }
 
     # init variables
 
@@ -647,42 +813,42 @@
       }
     #
 
-    # Get PwManager parameters
-    
-      $myDB = Get-MoolahDB;
-      if (!($myDB -is [Object])) {
-        $logmsg = "Unable to load " + $env:Moolah_DL + ":\" + $Script:MoolahXML
-        Write-Log $logmsg $true "Red"
-        Read-Host "Enter any key to exit"
-        exit
-      }
-
-      $PwMgr = $myDB.SelectNodes("//Application") | Where-Object {$_.Name -eq "PwManager"}
-      if (!($PwMgr -is [object])) {
-        $logmsg = "Application PwManager record not available in the Moolah DB"
-        Write-Log $logmsg $true "Red"
-        Read-Host "Enter any key to exit"
-        exit
-      }
-
-      $URL = $PwMgr.Binary;
-      $ARG = $Script:aPath + $PwMgr.ARG;
-      $bName = $PwMgr.Process;
-
-    #
-
-		# Start PwManager process
-      $Script:pwmObj = Get-Process | Where-Object {$_.ProcessName -match $bName}
-      if (([string]::IsNullOrEmpty($Script:pwmObj))) {
-        Try { Start-Process -FilePath $URL -ArgumentList $ARG }
-        Catch {
-          $logmsg = "Error starting $URL with $ARG"
+    # Start PwManager
+      if ($StartPWM) {
+        $myDB = Get-MoolahDB;
+        if (!($myDB -is [Object])) {
+          $logmsg = "Unable to load " + $env:Moolah_DL + ":\" + $Script:MoolahXML
           Write-Log $logmsg $true "Red"
-          Read-Host "Enter any key to exit.."
+          Read-Host "Enter any key to exit"
           exit
         }
-        Start-Sleep -Seconds 1
+
+        $PwMgr = $myDB.SelectNodes("//Application") | Where-Object {$_.Name -eq "PwManager"}
+        if (!($PwMgr -is [object])) {
+          $logmsg = "Application PwManager record not available in the Moolah DB"
+          Write-Log $logmsg $true "Red"
+          Read-Host "Enter any key to exit"
+          exit
+        }
+
+        $URL = $PwMgr.Binary;
+        $ARG = $Script:aPath + $PwMgr.ARG;
+        $bName = $PwMgr.Process;
+
+
+
         $Script:pwmObj = Get-Process | Where-Object {$_.ProcessName -match $bName}
+        if (([string]::IsNullOrEmpty($Script:pwmObj))) {
+          Try { Start-Process -FilePath $URL -ArgumentList $ARG }
+          Catch {
+            $logmsg = "Error starting $URL with $ARG"
+            Write-Log $logmsg $true "Red"
+            Read-Host "Enter any key to exit.."
+            exit
+          }
+          Start-Sleep -Seconds 1
+          $Script:pwmObj = Get-Process | Where-Object {$_.ProcessName -match $bName}
+        }
       }
     #
 	
@@ -967,6 +1133,7 @@
 					$ps = "dummy"
           $logmsg = "Waiting for $appProcess to terminate"
           Write-Log $logmsg $true "Magenta"
+
 					While (!([string]::IsNullOrEmpty($ps))) {
 						Start-Sleep -Seconds 10;
 						$ps = Get-Process | Where-Object {$_.ProcessName -match $appProcess}
@@ -1150,6 +1317,195 @@
     #
 
     Start-Wallet $container "GnuCash"
+
+  }
+
+  <#
+    .SYNOPSIS
+      Displays Powershell console listing of current or historical ticker values of
+      Crypto Currency provided by https://CoinMarketCap.com based on records in the AssetDB.
+      
+      By default, the console will be refreshed every 5 minutes.
+
+    .DESCRIPTION
+      Displays Powershell console listing of current or historical ticker values of
+      Crypto Currency provided by https://CoinMarketCap.com based on records in the AssetDB.
+
+    .PARAMETER Wallet
+      Limits the ticker values display to assets contained in a specific wallet.
+
+      By default, ticker values are displayed for all wallets.
+
+    .PARAMETER LoopCtrl
+      Sets the console refresh rated to a specific number of minutes.
+
+      Five minutes is the default, but can be changed to any value between
+      6 through 9 minutes.
+
+    .INPUTS
+      User Enviornment variables for Moolah are:
+
+        Name           Value          Description
+        ----           -----          -----------        
+        Moolah_DL      A              Driveletter for mounting the Moolah VeraCrypt container
+        Moolah_Offline D:\bin\app     Offline location of VeraCrypt containers
+        Moolah_Online  C:\bin\app     Online location of VeraCrypt containers
+        Moolah_VC      Moolah         Name of the Moolah VeraCrypt container
+        Moolah_WL      B              Driveletter for mounting the Wallet VeraCrypt container
+
+    .INPUTS
+      File: Moolah (default name)
+
+      The Moolah file is a VeraCrypt container with an Online location of C:\bin\app and a
+      offline location of D:\bin\app. Confidential data files such as Moolah database, Password Manager
+      database, AssetDB and other confidential files reside in this container. 
+      
+      The Moolah container file is mounted as drive letter 'A' and contains the AssetDB and the historical
+      CSV file.
+      
+    .INPUTS
+      File: A:\AssetDB.xml
+
+      This is an XML database containing wallet records and the associated assets in the wallet. The data in
+      these records are extracted from the Exodus wallet transaction dump.  See the documentation for an example
+      of the AssetDB and it's record structure.
+
+    .OUTPUTS
+      A offline backup of the AssetdB to a USB or MicroSD drive and a historical file named,
+      TickerHistory.csv.
+
+    .EXAMPLE
+      Get-CryptoTicker
+
+      Displays current ticker value for assets defined in all wallets and updates
+      the console every 5 minutes with new values.
+
+      OutPut Example:
+
+    .EXAMPLE
+      Get-CryptoTicker Exodus1
+
+      Displays current ticker value for assets defined in the 'Exodus1' wallet and updates
+      the console every 5 minutes with new values for assets in this wallet only.
+
+    .EXAMPLE
+      Get-CryptoTicker History
+
+      Displays the historical ticker values recorded in the file, TickerHistory.csv in an Out-GridView
+      dialog. Data display in the Out-GridView dialog can be filtered and/or sorted by each column.
+
+    .NOTES
+      Author: Craig Dayton
+        0.1.6: 11/30/2017 - Initial release
+    
+    .LINK
+      https://github.com/cadayton/Moolah
+
+    .LINK
+      http://Moolah.readthedocs.io
+  #>
+
+  function Get-CryptoTicker {
+
+    # Get-CryptoTicker Params
+      [cmdletbinding()]
+      Param(
+        [Parameter(Position=0,
+          Mandatory=$false,
+          HelpMessage = "Enter a Wallet name",
+          ValueFromPipeline=$True)]
+          #[ValidateNotNullorEmpty("^[a-zA-Z0-1]{12}$")]
+          [string]$Wallet = $null,
+        [Parameter(Position=1,
+          Mandatory=$false,
+          HelpMessage = "Enter minutes for refresh timeout",
+          ValueFromPipeline=$True)]
+          [int]$LoopCtrl = 5
+      )
+    #
+
+    $logmsg = "Get-CryptoTicker version 0.1.6"
+    Write-Log $logmsg $true
+    Write-Host " "
+
+    Start-PwManager $false
+    Start-Sleep -Seconds 5
+  
+    if ($Wallet -notmatch "History") {
+      Show-CryptoTicker $Wallet
+      Write-Host " "
+    } else {
+      Import-CSV $Script:MoolahHIS | Out-GridView -Title "Crypto Currency Ticker History" -OutputMode Single
+      $logmsg = "Unmounting $Script:aPath"
+      Write-Log $logmsg $true "Green"
+      Write-Host "Want to dismount drive $env:Moolah_DL? " -NoNewline -ForegroundColor Green
+      Write-Host "[Y or N]" -NoNewline
+      $rslt = Read-Host
+      if ($rslt -match "Y") {
+        Dismount-VeVolume $env:Moolah_DL;
+      }
+      exit
+    }
+  
+    if ($LoopCtrl -lt 5) { $LoopCtrl = 5}
+    [int]$LoopCntr = 0;
+  
+    $StopWatch = New-Object -TypeName System.Diagnostics.Stopwatch
+    $StopWatch.Start()
+    $repeat = $true;
+  
+    try {
+      While ($repeat) {
+        $LoopCntr = $LoopCtrl - $StopWatch.Elapsed.minutes
+        Write-Host "Will refresh in $LoopCntr minutes " -NoNewLine -ForegroundColor Yellow
+        Write-Host "  Ctrl-C to exit  " -NoNewline
+        Write-Host "Data provided by https://CoinMarketCap.com/" -ForegroundColor Magenta
+
+        # $ticker = $StopWatch.Elapsed.ToString();
+        $curPos = $host.UI.RawUI.CursorPosition
+        $y = $curPos.Y - 1;
+        #$curPos.X = 2; 
+        $curPos.Y = $y;
+        $host.UI.RawUI.CursorPosition = $curPos
+  
+        Start-Sleep -Seconds 30;
+        if ($StopWatch.Elapsed.minutes -ge $LoopCtrl) {
+          Clear-Host;
+          $Script:AssetArrays = @();
+          Show-CryptoTicker;
+          Write-Host " "
+          $StopWatch.ReStart();
+        }
+      }
+    }
+    catch { }
+    finally {
+      #Write-Host "Performing clean up work"
+      $StopWatch.Stop();
+
+      $fileSVN = $Script:aPath + ".svn"
+
+      if (Test-Path $fileSVN) { # SVN Commit process
+        UpDate-SVNServer $Script:aPath "commit";
+      }
+
+      $logmsg = "Unmounting $Script:aPath"
+      Write-Log $logmsg $true "Green"
+      Dismount-VeVolume $env:Moolah_DL;
+
+      $onLine   = $env:Moolah_Online + "\" + $env:Moolah_VC;    # Full local path of Moolah VeraCrypt container
+      $ofLine   = $env:Moolah_Offline + "\" + $env:Moolah_VC;   # Full offline path of Moolah VeraCrypt container
+
+      $logmsg = "Updating offline copy of $env:Moolah_VC container to $ofLine"
+      Write-Log $logmsg $true "Green"
+      Start-Sleep -Seconds 7
+      Try { Copy-Item -Path $onLine -Destination $ofLine -force }
+      Catch {
+        $logmsg = "Error copying $onLine to $ofLine"
+        Write-Log $logmsg $true "Red"
+      }
+
+    }
 
   }
 

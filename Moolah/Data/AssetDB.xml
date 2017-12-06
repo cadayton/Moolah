@@ -1,0 +1,62 @@
+<Assets version="1.0">
+  <Trans Wallet="Exodus1" Exchange="Coinbase" Ticker="ETH" TRID="VUV2599" TRTYPE="Buy">
+    <Name>ethereum</Name>
+    <Date>08/28/2014</Date>
+    <Amt>3.6711759</Amt>
+    <Unit>USD</Unit>
+    <AssetCost>46.20</AssetCost>
+    <Fee>29.80</Fee>
+    <Total>169.60</Total>
+    <TXamt></TXamt>
+    <TXfee></TXfee>
+    <Memo></Memo>
+  </Trans>
+  <Trans Wallet="Exodus2" Exchange="Coinbase" Ticker="BTC" TRID="5CMVM99" TRTYPE="Buy">
+    <Name>bitcoin</Name>
+    <Date>08/28/2014</Date>
+    <Amt>2.0</Amt>
+    <Unit>USD</Unit>
+    <AssetCost>353.61</AssetCost>
+    <Fee>29.80</Fee>
+    <Total>700.00</Total>
+    <TXamt></TXamt>
+    <TXfee></TXfee>
+    <Memo></Memo>
+  </Trans>
+  <Trans Wallet="Exodus2" Exchange="Exodus" Ticker="BTH" TRID="BTC" TRTYPE="Exchange">
+    <Name>bitcoin-cash</Name>
+    <Date>10/18/2014</Date>
+    <Amt>10.00</Amt>
+    <Unit>USD</Unit>
+    <AssetCost>353.00</AssetCost>
+    <Fee>11.74</Fee>
+    <Total>353.00</Total>
+    <TXamt>-12.91666667</TXamt>
+    <TXfee>-0.003553</TXfee>
+    <Memo></Memo>
+  </Trans>
+  <Trans Wallet="None" Exchange="NONE" Ticker="DASH" TRID="NONE" TRTYPE="Buy">
+    <Name>dash</Name>
+    <Date>11/25/2017</Date>
+    <Amt>0</Amt>
+    <Unit>USD</Unit>
+    <AssetCost>0</AssetCost>
+    <Fee>0</Fee>
+    <Total>0</Total>
+    <TXamt></TXamt>
+    <TXfee></TXfee>
+    <Memo></Memo>
+  </Trans>
+  <Trans Wallet="None" Exchange="NONE" Ticker="ZEC" TRID="NONE" TRTYPE="Buy">
+    <Name>zcash</Name>
+    <Date>11/25/2017</Date>
+    <Amt>0</Amt>
+    <Unit>USD</Unit>
+    <AssetCost>0</AssetCost>
+    <Fee>0</Fee>
+    <Total>0</Total>
+    <TXamt></TXamt>
+    <TXfee></TXfee>
+    <Memo></Memo>
+  </Trans>
+</Assets>

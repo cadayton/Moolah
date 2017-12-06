@@ -1,6 +1,6 @@
 # Moolah
 
-Moolah is a slang term for money and also a Powershell module consisting of three PoweShell cmdlets used for protecting your crypto currency.
+Moolah is a slang term for money and also a Powershell module consisting of other PoweShell cmdlets used for protecting your crypto currency and other financial automation.S
 
 **The Moolah module will NOT save you from yourself.**
 

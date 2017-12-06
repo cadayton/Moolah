@@ -13,7 +13,7 @@ The benefit for me in using **SVN** in combination with my crypto currency data 
 
 2. Easily synchronize data between multiple computers on my home network.
 
-If you decide to install and use **SVN**, the **Moolah** cmdlets will support synchronizing your data. It does this by detecting the present of the folder, *.svn*.  If the folder is present, the **Moolah** cmdlet will invoke the TortoriseSVN client to perform the commit operation.
+If you decide to install and use **SVN**, the **Moolah** cmdlets will support synchronizing your data. It does this by detecting the present of the folder, *.svn*.  If the folder is present, the **Moolah** cmdlet will invoke the TortoriseSVN client to perform the commit and update operations.
 
 ## TortoiseSVN Installation
 

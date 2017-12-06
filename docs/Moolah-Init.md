@@ -16,7 +16,7 @@ Moolah_OffLine | D:\bin\apps | The folder path were the **Offline** VeraCrypt co
 
 ## MoolahDB Overview
 
-The MoolahDB is a set of wallet and application records contain in XML format in the file, **MoolahDB-[computername].xml**.  During the initialization process a sample **MoolahDB** will be copied to the **Moolah** VeraCrypt container and may need to be updated match your configuration.  Any ASCII editor can be used to maintain the **MoolahDB** file, but I recommend using Microsoft Visual Code (**VScode**) because is has built in support for XML data. If you followed my instructions, **VScode** is already installed and ready to be used.
+The MoolahDB is a set of wallet and application records contain in XML format in the file, **MoolahDB-[computername].xml**.  During the initialization process a sample **MoolahDB** will be copied to the **Moolah** VeraCrypt container and may need to be updated to match your configuration.  Any ASCII editor can be used to maintain the **MoolahDB** file, but I recommend using Microsoft Visual Code (**VScode**) because is has built in support for XML data. If you followed my instructions, **VScode** is already installed and ready to be used.
 
 Here is an example of the default **MoolahDB** that will be copied to your **Moolah** VeraCrypt container during the initialization process.
 
